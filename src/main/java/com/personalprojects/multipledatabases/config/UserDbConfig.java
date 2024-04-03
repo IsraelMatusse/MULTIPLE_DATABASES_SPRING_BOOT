@@ -2,6 +2,7 @@ package com.personalprojects.multipledatabases.config;
 
 import com.personalprojects.multipledatabases.domains.user.repos.UserRepo;
 import jakarta.persistence.EntityManagerFactory;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -46,4 +47,17 @@ public class UserDbConfig {
             @Qualifier("userEntityManager") EntityManagerFactory userEntityManager) {
         return new JpaTransactionManager(userEntityManager);
     }
+
+    @Bean
+    public Flyway flywayUserMigration(@Qualifier("userDataSource") DataSource dataSource) {
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/migrations/user")
+                .baselineOnMigrate(true)
+                .load();
+        flyway.migrate();
+        return flyway;
+    }
+
+
 }
